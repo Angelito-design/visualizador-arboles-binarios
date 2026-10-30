@@ -1,0 +1,510 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Árboles Binarios</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+  /* Layout: una columna de tarjetas numeradas por paso (datos, recorrido, resultado, dibujo). */
+  :root {
+    --bg: #f3f5fa;
+    --card: #ffffff;
+    --text: #1d2433;
+    --muted: #5f6880;
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+    --on-primary: #ffffff;
+    --accent: #f59e0b;
+    --accent-stroke: #b45309;
+    --border: #dfe3ee;
+    --node: #e0e7ff;
+    --node-visited: #c7d2fe;
+    --node-stroke: #4f46e5;
+    --node-text: #1e1b4b;
+    --edge: #9aa3b8;
+    --sec-bg: #eceff6;
+    --sec-hover: #dfe3ee;
+    --selected: #eef2ff;
+    --canvas: #fafbff;
+    --error: #c62828;
+    --banner-a: #4f46e5;
+    --banner-b: #7c3aed;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12141c;
+      --card: #1b1e29;
+      --text: #e8eaf2;
+      --muted: #9ba1b8;
+      --primary: #6366f1;
+      --primary-hover: #7c7ff5;
+      --accent: #f59e0b;
+      --accent-stroke: #fcd34d;
+      --border: #2d3142;
+      --node: #2b2f52;
+      --node-visited: #3a3f73;
+      --node-stroke: #818cf8;
+      --node-text: #eef0ff;
+      --edge: #5d647c;
+      --sec-bg: #272b3a;
+      --sec-hover: #323749;
+      --selected: #23274a;
+      --canvas: #161924;
+      --error: #ff8a80;
+      --banner-a: #3730a3;
+      --banner-b: #5b21b6;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12141c;
+    --card: #1b1e29;
+    --text: #e8eaf2;
+    --muted: #9ba1b8;
+    --primary: #6366f1;
+    --primary-hover: #7c7ff5;
+    --accent: #f59e0b;
+    --accent-stroke: #fcd34d;
+    --border: #2d3142;
+    --node: #2b2f52;
+    --node-visited: #3a3f73;
+    --node-stroke: #818cf8;
+    --node-text: #eef0ff;
+    --edge: #5d647c;
+    --sec-bg: #272b3a;
+    --sec-hover: #323749;
+    --selected: #23274a;
+    --canvas: #161924;
+    --error: #ff8a80;
+    --banner-a: #3730a3;
+    --banner-b: #5b21b6;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding-block: 16px 32px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; display: grid; gap: 16px; }
+  .banner {
+    background: linear-gradient(135deg, var(--banner-a), var(--banner-b));
+    color: #fff;
+    border-radius: 16px;
+    padding: 22px 20px;
+  }
+  .banner h1 { margin: 0 0 4px; font-size: 1.55rem; text-wrap: balance; }
+  .banner p { margin: 0; opacity: .92; font-size: .95rem; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    min-width: 0;
+  }
+  .card h2 { margin: 0 0 12px; font-size: 1.05rem; }
+  label.campo { display: block; font-weight: 600; font-size: .9rem; margin-bottom: 6px; }
+  input[type="text"], select {
+    width: 100%;
+    padding: 12px;
+    font: inherit;
+    color: var(--text);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  input[type="text"]::placeholder { color: var(--muted); }
+  input[type="text"]:focus-visible, select:focus-visible, button:focus-visible, .opcion:has(input:focus-visible) {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+  .ayuda { color: var(--muted); font-size: .85rem; margin-top: 6px; }
+  .fila { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  button {
+    font: inherit;
+    font-weight: 600;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background: var(--primary);
+    color: var(--on-primary);
+  }
+  button:hover { background: var(--primary-hover); }
+  button.sec { background: var(--sec-bg); color: var(--text); }
+  button.sec:hover { background: var(--sec-hover); }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .opciones { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; }
+  .opcion {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 10px 12px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .opcion:has(input:checked) { border-color: var(--primary); background: var(--selected); }
+  .opcion input { margin-top: 5px; accent-color: var(--primary); }
+  .opcion strong { display: block; }
+  .opcion span { font-size: .82rem; color: var(--muted); }
+  #mensaje { min-height: 1.3em; margin-top: 8px; font-size: .9rem; color: var(--error); }
+  #resultado { display: flex; flex-wrap: wrap; gap: 8px; min-height: 44px; align-items: center; }
+  .chip {
+    min-width: 44px; padding: 8px 12px;
+    text-align: center; font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    background: var(--node); border: 2px solid var(--node-stroke); color: var(--node-text);
+    border-radius: 999px;
+    transition: background .2s, transform .2s;
+  }
+  .chip.activo { background: var(--accent); border-color: var(--accent-stroke); color: #1c1200; transform: scale(1.12); }
+  .flecha { color: var(--muted); }
+  #explicacion { font-size: .9rem; color: var(--muted); margin-top: 10px; max-width: 65ch; }
+  #lienzo {
+    overflow-x: auto;
+    background: var(--canvas);
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    min-height: 200px;
+    text-align: center;
+  }
+  #lienzo svg { display: inline-block; max-width: none; }
+  .vacio { padding: 60px 16px; color: var(--muted); }
+  .arista { stroke: var(--edge); stroke-width: 2; }
+  .nodo circle { fill: var(--node); stroke: var(--node-stroke); stroke-width: 2.5; transition: fill .2s; }
+  .nodo.activo circle { fill: var(--accent); stroke: var(--accent-stroke); }
+  .nodo.visitado circle { fill: var(--node-visited); }
+  .nodo text.valor { font-weight: 700; font-size: 15px; fill: var(--node-text); text-anchor: middle; dominant-baseline: central; }
+  .nodo.activo text.valor { fill: #1c1200; }
+  .nodo circle.orden-bg { fill: var(--primary); stroke: none; }
+  .nodo text.orden { font-size: 10px; font-weight: 700; fill: #fff; text-anchor: middle; dominant-baseline: central; }
+  .leyenda { font-size: .82rem; color: var(--muted); margin-top: 8px; }
+  @media (prefers-reduced-motion: reduce) {
+    .chip, .nodo circle, .opcion { transition: none; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="banner">
+    <h1>Visualizador de Árboles Binarios</h1>
+    <p>Ingresa números, elige un recorrido y mira el árbol.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Ingresa los datos</h2>
+    <label class="campo" for="entrada">Números (separados por coma o espacio)</label>
+    <input type="text" id="entrada" placeholder="Ejemplo: 50, 30, 70, 20, 40, 60, 80" autocomplete="off" inputmode="text">
+    <div class="ayuda">Los números se insertan en el orden en que los escribes.</div>
+
+    <div style="margin-top:14px">
+      <label class="campo" for="tipo">Tipo de árbol</label>
+      <select id="tipo">
+        <option value="bst">Árbol binario de búsqueda (ordenado)</option>
+        <option value="niveles">Árbol binario simple (se llena por niveles)</option>
+      </select>
+    </div>
+
+    <div class="fila">
+      <button id="btnConstruir">Construir árbol</button>
+      <button id="btnEjemplo" class="sec">Cargar ejemplo</button>
+      <button id="btnLimpiar" class="sec">Limpiar</button>
+    </div>
+    <div id="mensaje" role="status"></div>
+  </section>
+
+  <section class="card">
+    <h2>2. Elige el recorrido</h2>
+    <div class="opciones">
+      <label class="opcion">
+        <input type="radio" name="recorrido" value="inorden" checked>
+        <div><strong>Inorden</strong><span>Izquierda → Raíz → Derecha</span></div>
+      </label>
+      <label class="opcion">
+        <input type="radio" name="recorrido" value="preorden">
+        <div><strong>Preorden</strong><span>Raíz → Izquierda → Derecha</span></div>
+      </label>
+      <label class="opcion">
+        <input type="radio" name="recorrido" value="posorden">
+        <div><strong>Posorden</strong><span>Izquierda → Derecha → Raíz</span></div>
+      </label>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. Resultado del recorrido</h2>
+    <div id="resultado"></div>
+    <div id="explicacion"></div>
+    <div class="fila">
+      <button id="btnAnimar" disabled>▶ Animar recorrido</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>4. Dibujo del árbol</h2>
+    <div id="lienzo"></div>
+    <div class="leyenda">El numerito morado en cada nodo indica en qué posición se visita en el recorrido elegido.</div>
+  </section>
+
+</div>
+
+<script>
+/* ---------- Estructura del árbol ---------- */
+class Nodo {
+  constructor(valor) {
+    this.valor = valor;
+    this.izq = null;
+    this.der = null;
+  }
+}
+
+let raiz = null;
+let temporizador = null;
+let ultimoRecorrido = [];
+
+/* Árbol de búsqueda: menores a la izquierda, mayores a la derecha */
+function insertarBST(valor) {
+  if (!raiz) { raiz = new Nodo(valor); return true; }
+  let actual = raiz;
+  while (true) {
+    if (valor === actual.valor) return false;
+    if (valor < actual.valor) {
+      if (!actual.izq) { actual.izq = new Nodo(valor); return true; }
+      actual = actual.izq;
+    } else {
+      if (!actual.der) { actual.der = new Nodo(valor); return true; }
+      actual = actual.der;
+    }
+  }
+}
+
+/* Árbol simple: llena el primer hueco por niveles, de izquierda a derecha */
+function insertarNiveles(valor) {
+  if (!raiz) { raiz = new Nodo(valor); return true; }
+  const cola = [raiz];
+  while (cola.length) {
+    const n = cola.shift();
+    if (!n.izq) { n.izq = new Nodo(valor); return true; }
+    if (!n.der) { n.der = new Nodo(valor); return true; }
+    cola.push(n.izq, n.der);
+  }
+}
+
+/* ---------- Recorridos ---------- */
+function inorden(n, r = []) {
+  if (!n) return r;
+  inorden(n.izq, r); r.push(n); inorden(n.der, r);
+  return r;
+}
+function preorden(n, r = []) {
+  if (!n) return r;
+  r.push(n); preorden(n.izq, r); preorden(n.der, r);
+  return r;
+}
+function posorden(n, r = []) {
+  if (!n) return r;
+  posorden(n.izq, r); posorden(n.der, r); r.push(n);
+  return r;
+}
+
+const explicaciones = {
+  inorden: "Inorden: primero se visita todo el subárbol izquierdo, luego la raíz y al final el subárbol derecho. En un árbol de búsqueda el resultado sale ordenado de menor a mayor.",
+  preorden: "Preorden: primero se visita la raíz, luego el subárbol izquierdo y después el derecho. Sirve, por ejemplo, para copiar un árbol.",
+  posorden: "Posorden: primero se visita el subárbol izquierdo, luego el derecho y por último la raíz. La raíz siempre queda al final."
+};
+
+/* ---------- Utilidades de interfaz ---------- */
+const $ = id => document.getElementById(id);
+const entrada = $("entrada");
+const mensaje = $("mensaje");
+
+function recorridoElegido() {
+  return document.querySelector('input[name="recorrido"]:checked').value;
+}
+
+function obtenerNumeros() {
+  const partes = entrada.value.split(/[\s,;]+/).filter(p => p !== "");
+  const numeros = [];
+  const invalidos = [];
+  for (const p of partes) {
+    const n = Number(p);
+    if (Number.isFinite(n)) numeros.push(n); else invalidos.push(p);
+  }
+  return { numeros, invalidos };
+}
+
+/* ---------- Acciones ---------- */
+function construir() {
+  detenerAnimacion();
+  mensaje.textContent = "";
+  const { numeros, invalidos } = obtenerNumeros();
+
+  if (numeros.length === 0) {
+    raiz = null;
+    mensaje.textContent = "Escribe al menos un número válido.";
+    actualizar();
+    return;
+  }
+
+  raiz = null;
+  const insertar = $("tipo").value === "bst" ? insertarBST : insertarNiveles;
+  const repetidos = [];
+  for (const n of numeros) {
+    if (!insertar(n)) repetidos.push(n);
+  }
+
+  const avisos = [];
+  if (invalidos.length) avisos.push("Se ignoraron valores no numéricos: " + invalidos.join(", "));
+  if (repetidos.length) avisos.push("Se ignoraron repetidos: " + repetidos.join(", "));
+  mensaje.textContent = avisos.join(" · ");
+
+  actualizar();
+}
+
+function actualizar() {
+  detenerAnimacion();
+  const tipo = recorridoElegido();
+  const orden = tipo === "inorden" ? inorden(raiz) : tipo === "preorden" ? preorden(raiz) : posorden(raiz);
+  ultimoRecorrido = orden;
+  mostrarResultado(orden, tipo);
+  dibujar(orden);
+  $("btnAnimar").disabled = orden.length === 0;
+}
+
+function mostrarResultado(orden, tipo) {
+  const cont = $("resultado");
+  if (!orden.length) {
+    cont.innerHTML = '<span class="ayuda" style="margin:0">Aún no hay datos. Escribe números y pulsa «Construir árbol».</span>';
+    $("explicacion").textContent = "";
+    return;
+  }
+  cont.innerHTML = "";
+  orden.forEach((n, i) => {
+    const chip = document.createElement("div");
+    chip.className = "chip";
+    chip.id = "chip-" + i;
+    chip.textContent = n.valor;
+    cont.appendChild(chip);
+    if (i < orden.length - 1) {
+      const f = document.createElement("span");
+      f.className = "flecha";
+      f.textContent = "→";
+      cont.appendChild(f);
+    }
+  });
+  $("explicacion").textContent = explicaciones[tipo];
+}
+
+/* ---------- Dibujo SVG ---------- */
+function dibujar(orden) {
+  const lienzo = $("lienzo");
+  if (!raiz) {
+    lienzo.innerHTML = '<div class="vacio">Aquí aparecerá tu árbol.</div>';
+    return;
+  }
+
+  const ESPACIO_X = 56, ESPACIO_Y = 76, R = 22, MARGEN = 40;
+  let contador = 0, profundidadMax = 0;
+  const pos = new Map();
+
+  // x según el orden izquierda-derecha (así nada se encima), y según el nivel
+  (function colocar(n, nivel) {
+    if (!n) return;
+    colocar(n.izq, nivel + 1);
+    pos.set(n, { x: MARGEN + contador * ESPACIO_X, y: MARGEN + nivel * ESPACIO_Y });
+    contador++;
+    profundidadMax = Math.max(profundidadMax, nivel);
+    colocar(n.der, nivel + 1);
+  })(raiz, 0);
+
+  const ancho = MARGEN * 2 + (contador - 1) * ESPACIO_X;
+  const alto = MARGEN * 2 + profundidadMax * ESPACIO_Y;
+
+  const indiceOrden = new Map();
+  orden.forEach((n, i) => indiceOrden.set(n, i));
+
+  let aristas = "", nodos = "";
+  pos.forEach((p, n) => {
+    [n.izq, n.der].forEach(hijo => {
+      if (hijo) {
+        const q = pos.get(hijo);
+        aristas += `<line class="arista" x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}"/>`;
+      }
+    });
+  });
+  pos.forEach((p, n) => {
+    const i = indiceOrden.get(n);
+    nodos += `
+      <g class="nodo" id="nodo-${i}">
+        <circle cx="${p.x}" cy="${p.y}" r="${R}"/>
+        <text class="valor" x="${p.x}" y="${p.y}">${n.valor}</text>
+        <circle class="orden-bg" cx="${p.x + R - 4}" cy="${p.y - R + 4}" r="9"/>
+        <text class="orden" x="${p.x + R - 4}" y="${p.y - R + 4}">${i + 1}</text>
+      </g>`;
+  });
+
+  lienzo.innerHTML = `<svg width="${ancho}" height="${alto}" viewBox="0 0 ${ancho} ${alto}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dibujo del árbol binario">${aristas}${nodos}</svg>`;
+}
+
+/* ---------- Animación ---------- */
+function detenerAnimacion() {
+  if (temporizador) { clearInterval(temporizador); temporizador = null; }
+  $("btnAnimar").textContent = "▶ Animar recorrido";
+}
+
+function limpiarMarcas() {
+  document.querySelectorAll(".chip").forEach(c => c.classList.remove("activo"));
+  document.querySelectorAll(".nodo").forEach(n => n.classList.remove("activo", "visitado"));
+}
+
+function animar() {
+  if (temporizador) { detenerAnimacion(); return; }
+  if (!ultimoRecorrido.length) return;
+  limpiarMarcas();
+  let i = 0;
+  $("btnAnimar").textContent = "⏹ Detener";
+  temporizador = setInterval(() => {
+    if (i > 0) {
+      document.getElementById("chip-" + (i - 1))?.classList.remove("activo");
+      const anterior = document.getElementById("nodo-" + (i - 1));
+      anterior?.classList.remove("activo");
+      anterior?.classList.add("visitado");
+    }
+    if (i >= ultimoRecorrido.length) { detenerAnimacion(); return; }
+    document.getElementById("chip-" + i)?.classList.add("activo");
+    document.getElementById("nodo-" + i)?.classList.add("activo");
+    i++;
+  }, 700);
+}
+
+/* ---------- Eventos ---------- */
+$("btnConstruir").addEventListener("click", construir);
+entrada.addEventListener("keydown", e => { if (e.key === "Enter") construir(); });
+$("btnAnimar").addEventListener("click", animar);
+$("tipo").addEventListener("change", () => { if (entrada.value.trim()) construir(); });
+document.querySelectorAll('input[name="recorrido"]').forEach(r =>
+  r.addEventListener("change", () => { if (raiz) actualizar(); })
+);
+$("btnEjemplo").addEventListener("click", () => {
+  entrada.value = "50, 30, 70, 20, 40, 60, 80";
+  construir();
+});
+$("btnLimpiar").addEventListener("click", () => {
+  detenerAnimacion();
+  entrada.value = "";
+  mensaje.textContent = "";
+  raiz = null;
+  actualizar();
+});
+
+/* Estado inicial: ejemplo ya cargado para que se vea qué hace la herramienta */
+entrada.value = "50, 30, 70, 20, 40, 60, 80";
+construir();
+</script>
+
+</body></html>
